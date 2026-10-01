@@ -132,6 +132,8 @@ Right Click PHP File
 
 You can optionally tell Windows to always use runphp.exe for .php files.
 
+You can open .php files with your Editor from the context menu: **Right Click > Edit with VSCode** (if you enabled the Editor in your Context Menu), or just edit your project from an Editor (VSCode) by navigating to it in your project directory.
+
 Double-clicking a PHP file will then execute the file with its own directory as the working directory.
 
 ## CONFIGURATION
@@ -150,7 +152,7 @@ pause_on_error=true
 pause_after_run=false
 ```
 
-Set pause_after_run=true if you want the terminal window to remain open after a script finishes.
+Set `pause_after_run=true` if you want the terminal window to remain open after a script finishes.
 
 ## COMPILING
 
@@ -164,9 +166,7 @@ dmd -O -release -of="runphp.exe" runphp.d
 
 runphp was vibe-coded with [ChatGPT](https://chatgpt.com/) (**<u>NOT</u>** with the [OpenAI Codex Agent](https://openai.com/codex/)) and developed through iterative testing and debugging.
 
-I built it because I wanted a simple way to run PHP scripts on Windows without creating a separate batch file for every script.
-
-The source is included and the project is intentionally small. Feel free to inspect it, modify it, fork it, or fix anything I've missed.
+I built it because I wanted a simple way to run PHP scripts on Windows without creating a separate batch file for every script. The source is included and the project is intentionally small. Feel free to inspect it, modify it, fork it, or fix anything I've missed.
 
 ## LICENSE
 
