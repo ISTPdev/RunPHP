@@ -8,7 +8,7 @@ It allows PHP scripts to be launched from the command line or directly from Wind
 
 - `runphp.exe` The compiled launcher.
 - `runphp.ini` Configuration file.
-- `runphp.d` D source code for runphp.
+- `runphp.d` D source code for RunPHP.
 - `LICENSE.txt` License information.
 
 ## INSTALLATION
@@ -24,7 +24,7 @@ It allows PHP scripts to be launched from the command line or directly from Wind
    executable=C:\path\to\php.exe
    ```
 
-3. Configure the global PHP scripts directory: (this is where you put your scripts you want to run directly from the terminal like "hello_world.php" will call "runphp hello_world.php" where hello_world.php lives inside the php_exec director )
+3. Configure the global PHP scripts directory: (this is where you put your scripts you want to run directly from the terminal like `runphp hello_world.php` from the terminal or `hello_world.php` to launch it as a new terminal window, no `php C:/path/hello_world.php`  required)
    ```
    [scripts]
    directory=C:\scripts\php_exec
@@ -162,7 +162,7 @@ dmd -O -release -of="runphp.exe" runphp.d
 
 ## Development
 
-runphp was vibe-coded with ChatGPT and developed through iterative testing and debugging.
+runphp was vibe-coded with [ChatGPT](https://chatgpt.com/) (**<u>NOT</u>** with the [OpenAI Codex Agent](https://openai.com/codex/)) and developed through iterative testing and debugging.
 
 I built it because I wanted a simple way to run PHP scripts on Windows without creating a separate batch file for every script.
 
