@@ -6,10 +6,10 @@ It allows PHP scripts to be launched from the command line or directly from Wind
 
 ## FILES
 
-`runphp.exe` The compiled launcher.
-`runphp.ini` Configuration file.
-`runphp.d` D source code for runphp.
-`LICENSE.txt` License information.
+- `runphp.exe` The compiled launcher.
+- `runphp.ini` Configuration file.
+- `runphp.d` D source code for runphp.
+- `LICENSE.txt` License information.
 
 ## INSTALLATION
 
