@@ -2,49 +2,39 @@
 
 runphp is a small Windows launcher for PHP scripts.
 
-It allows PHP scripts to be launched from the command line or directly
-from Windows Explorer without requiring a separate .bat file for every
-script.
+It allows PHP scripts to be launched from the command line or directly from Windows Explorer without requiring a separate **.bat** file for every script.
 
 ## FILES
 
 `runphp.exe` The compiled launcher.
-
 `runphp.ini` Configuration file.
-
 `runphp.d` D source code for runphp.
-
 `LICENSE.txt` License information.
 
 ## INSTALLATION
 
 1. Extract the files to a permanent directory, for example:
-
    ```
    C:\Tools\runphp
    ```
 
 2. Edit runphp.ini and configure your PHP executable:
-
    ```
    [php]
    executable=C:\path\to\php.exe
    ```
 
-3. Configure the **optional** global PHP scripts directory: (this is where you put your scripts you want to run directly from the terminal like "hello_world.php" will call "runphp hello_world.php" where hello_world.php lives inside the php_exec director )
-
+3. Configure the global PHP scripts directory: (this is where you put your scripts you want to run directly from the terminal like "hello_world.php" will call "runphp hello_world.php" where hello_world.php lives inside the php_exec director )
    ```
    [scripts]
    directory=C:\scripts\php_exec
    ```
 
-4. Add the runphp directory to your Windows user PATH:
-
+4. Add the RunPHP directory to your Windows user PATH:
    ```
    C:\Tools\runphp
    ```
-
-You can now use "runphp" from any terminal.
+   You can now use "runphp" from any terminal.
 
 ## USAGE
 
@@ -60,8 +50,7 @@ This looks for:
 .\test.php
 ```
 
-If no local script exists, RunPHP looks in the configured global scripts
-directory.
+If no local script exists, **RunPHP** looks in the configured global scripts directory.
 
 Force the local script:
 
@@ -111,11 +100,9 @@ while the PHP working directory remains:
 C:\Pictures
 ```
 
-This allows globally stored PHP utilities to operate on the current
-directory.
+This allows globally stored PHP utilities to operate on the current directory.
 
-Explicit PHP file paths use the directory containing the PHP file as the
-working directory.
+Explicit PHP file paths use the directory containing the PHP file as the working directory.
 
 For example:
 
@@ -145,8 +132,7 @@ Right Click PHP File
 
 You can optionally tell Windows to always use runphp.exe for .php files.
 
-Double-clicking a PHP file will then execute the file with its own
-directory as the working directory.
+Double-clicking a PHP file will then execute the file with its own directory as the working directory.
 
 ## CONFIGURATION
 
@@ -164,16 +150,23 @@ pause_on_error=true
 pause_after_run=false
 ```
 
-Set pause_after_run=true if you want the terminal window to remain open
-after a script finishes.
+Set pause_after_run=true if you want the terminal window to remain open after a script finishes.
 
 ## COMPILING
 
-runphp is written in D and can be compiled using DMD:
+**RunPHP** is written in [D](https://dlang.org/) and can be compiled using [DMD](https://dlang.org/dmd-windows.html):
 
 ```
 dmd -O -release -of="runphp.exe" runphp.d
 ```
+
+## Development
+
+runphp was vibe-coded with ChatGPT and developed through iterative testing and debugging.
+
+I built it because I wanted a simple way to run PHP scripts on Windows without creating a separate batch file for every script.
+
+The source is included and the project is intentionally small. Feel free to inspect it, modify it, fork it, or fix anything I've missed.
 
 ## LICENSE
 
