@@ -1,7 +1,7 @@
 import std.algorithm : startsWith;
 import std.array : array;
 import std.conv : to;
-import std.file : chdir, exists, getcwd, isFile, readText;
+import std.file : chdir, exists, getcwd, isDir, isFile, readText;
 import std.path :
     absolutePath,
     baseName,
@@ -28,6 +28,12 @@ import std.string :
     strip,
     toLower;
 import std.typecons : Tuple, tuple;
+import core.sys.windows.windows :
+    DWORD,
+    GetModuleFileNameW,
+    WCHAR;
+
+import std.utf : toUTF8;
 
 
 // -----------------------------------------------------------------------------
@@ -118,13 +124,7 @@ ConfigFile load_config(string executableDirectory)
         );
     }
 
-    if (!exists(config.phpExecutable))
-    {
-        fail(
-            "Configured PHP executable does not exist:\n" ~
-            config.phpExecutable
-        );
-    }
+    config.phpExecutable = resolve_php_executable(config.phpExecutable);
 
     if (config.scriptsDirectory.length != 0)
     {
@@ -133,6 +133,39 @@ ConfigFile load_config(string executableDirectory)
     }
 
     return config;
+}
+
+
+string resolve_php_executable(string configuredPath)
+{
+    // An exact executable/file was configured.
+    if (exists(configuredPath) && isFile(configuredPath))
+        return absolutePath(configuredPath);
+
+    // A PHP directory was configured.
+    // Look for the normal php.exe inside it.
+    if (exists(configuredPath) && isDir(configuredPath))
+    {
+        string phpExecutable =
+            buildPath(configuredPath, "php.exe");
+
+        if (exists(phpExecutable) && isFile(phpExecutable))
+            return absolutePath(phpExecutable);
+
+        fail(
+            "PHP executable not found:\n" ~
+            configuredPath ~ "\n\n" ~
+            "Expected:\n" ~
+            phpExecutable
+        );
+    }
+
+    fail(
+        "PHP executable not found:\n" ~
+        configuredPath
+    );
+
+    assert(0);
 }
 
 
@@ -515,6 +548,38 @@ int execute_php(
 // Utility
 // -----------------------------------------------------------------------------
 
+string get_executable_path()
+{
+    WCHAR[32768] buffer;
+
+    DWORD length =
+        GetModuleFileNameW(
+            null,
+            buffer.ptr,
+            cast(DWORD) buffer.length
+        );
+
+    if (length == 0)
+    {
+        fail(
+            "Unable to determine the location of runphp.exe."
+        );
+    }
+
+    if (length >= buffer.length)
+    {
+        fail(
+            "The path to runphp.exe is too long."
+        );
+    }
+
+    return
+        buffer[0 .. length]
+            .toUTF8()
+            .idup;
+}
+
+
 void pause()
 {
     write("\nPress Enter to close...");
@@ -630,7 +695,7 @@ int main(string[] arguments)
     try
     {
         string executablePath =
-            absolutePath(arguments[0]);
+            get_executable_path();
 
         string executableDirectory =
             dirName(executablePath);

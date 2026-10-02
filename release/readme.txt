@@ -1,117 +1,82 @@
-RUNPHP
+RunPHP
 ======
 
-Small Windows launcher for PHP scripts.
+RunPHP is a small Windows utility for running PHP scripts from the command line or Windows Explorer.
 
-INSTALL
--------
 
-1. Put these files somewhere permanent:
+SETUP
+-----
 
-   C:\Tools\runphp
+1. Edit runphp.ini and configure your PHP installation.
 
-2. Edit runphp.ini:
+You can specify the PHP executable:
 
-   [php]
-   executable=C:\path\to\php.exe
+    [php]
+    executable=C:\Tools\php83\php.exe
 
-   [scripts]
-   directory=C:\scripts\php_exec
+Or the PHP installation directory:
 
-3. Add C:\Tools\runphp to your Windows PATH.
+    [php]
+    executable=C:\Tools\php83
 
-Optional:
-Associate .php files with runphp.exe to run them by
-double-clicking them in Windows Explorer.
+When a directory is specified, RunPHP automatically looks for php.exe inside it.
+
+2. Add the directory containing runphp.exe to your Windows PATH if you want to use the "runphp" command from any terminal.
 
 
 USAGE
 -----
 
-Run a local script:
+    runphp <script> [arguments...]
 
-   runphp test
+Examples:
 
-If test.php isn't in the current directory, runphp
-looks in the configured global scripts directory.
+    runphp example
+    runphp example.php
+    runphp resize --width 800 --recursive
+    runphp "D:\Tools\example.php"
 
-Force local:
+Run:
 
-   runphp --local test
+    runphp --help
 
-Force global:
-
-   runphp --scripts test
-
-Run a specific file:
-
-   runphp "C:\somewhere\test.php"
-
-Arguments are forwarded to the PHP script:
-
-   runphp test --option value
+for additional options and script resolution information.
 
 
-WORKING DIRECTORY
------------------
-
-Named scripts use the directory where you ran runphp.
-
-Example:
-
-   C:\Pictures> runphp resize
-
-The script may live in C:\scripts\php_exec, but its
-working directory remains C:\Pictures.
-
-Explicit PHP files use the file's own directory.
-
-This makes double-clicked PHP scripts work naturally.
-
-
-COMMON ISSUES
+CONFIGURATION
 -------------
 
-PHP Startup: Unable to load dynamic library...
+runphp.ini must be located beside runphp.exe.
 
-This is a PHP configuration error, not a runphp error.
+An optional global scripts directory can be configured with:
 
-Check the php.ini used by your configured php.exe.
+    [scripts]
+    directory=C:\Tools\PHP-Scripts
 
-For example, an old PHP configuration may contain:
+Runner behavior can be configured with:
 
-   extension=php_gd2.dll
-   extension=php_mysql.dll
-
-while your PHP installation no longer contains those
-DLL files.
-
-Modern PHP installations may instead contain extensions
-such as:
-
-   php_gd.dll
-   php_pdo_mysql.dll
-
-Do NOT blindly rename or substitute extensions.
-
-Remove/comment obsolete extension entries if you don't
-need them, or configure the correct extension required
-by your PHP installation.
-
-You can check which php.ini PHP is loading with:
-
-   php --ini
+    [runner]
+    pause_on_error=true
+    pause_after_run=false
 
 
-MORE INFORMATION
-----------------
+TROUBLESHOOTING
+---------------
 
-See README.md for full documentation.
+"Configuration file not found"
 
-Source code is included as runphp.d.
+    Make sure runphp.ini is beside runphp.exe.
 
-Compile with DMD:
+"PHP executable not found"
 
-   dmd -O -release -of="runphp.exe" runphp.d
+    Check the [php] executable setting in runphp.ini.
 
-See LICENSE.txt for licensing information.
+"runphp is not recognized as a command"
+
+    Add the directory containing runphp.exe to your Windows PATH.
+
+
+LICENSE
+-------
+
+RunPHP is released under the Unlicense.

@@ -1,0 +1,9 @@
+[php]
+executable=C:\path\to\php.exe
+
+[scripts]
+directory=
+
+[runner]
+pause_on_error=false
+pause_after_run=false

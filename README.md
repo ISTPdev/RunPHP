@@ -1,198 +1,132 @@
-# RUNPHP
+# RunPHP
 
-runphp is a small Windows launcher for PHP scripts.
+RunPHP is a small Windows utility for running PHP scripts from the command line or Windows Explorer without repeatedly typing the full path to PHP or your scripts.
 
-It allows PHP scripts to be launched from the command line or directly from Windows Explorer without requiring a separate **.bat** file for every script.
-
-## FILES
-
-- `runphp.exe` The compiled launcher.
-- `runphp.ini` Configuration file.
-- `runphp.d` D source code for RunPHP.
-- `LICENSE.txt` License information.
-
-## INSTALLATION
-
-1. Extract the files to a permanent directory, for example:
-   ```
-   C:\Tools\runphp
-   ```
-
-2. Edit runphp.ini and configure your PHP executable:
-   ```
-   [php]
-   executable=C:\path\to\php.exe
-   ```
-
-3. Configure the global PHP scripts directory: (this is where you put your scripts you want to run directly from the terminal like `runphp hello_world.php` from the terminal or `hello_world.php` to launch it as a new terminal window, no `php C:/path/hello_world.php`  required)
-   ```
-   [scripts]
-   directory=C:\scripts\php_exec
-   ```
-
-4. Add the RunPHP directory to your Windows user PATH:
-   ```
-   C:\Tools\runphp
-   ```
-   You can now use "runphp" from any terminal.
-
-## USAGE
-
-Run a script from the current directory:
-
-```
-runphp test
+```cmd id="m9x8hm"
+runphp cleanup
+runphp resize --width 800
+runphp "D:\Tools\example.php"
 ```
 
-This looks for:
+## Installation
 
-```
-.\test.php
-```
+1. Extract RunPHP to a permanent directory, such as:
 
-If no local script exists, **RunPHP** looks in the configured global scripts directory.
-
-Force the local script:
-
-```
-runphp --local test
+```text id="94fm69"
+C:\Tools\RunPHP
 ```
 
-Force the global script:
+2. Edit `runphp.ini` and configure your PHP installation.
 
-```
-runphp --scripts test
-```
+3. Add the RunPHP directory to your Windows `PATH` if you want to use `runphp` from any terminal.
 
-Run an explicit PHP file:
+## Configuration
 
-```
-runphp "C:\some folder\test.php"
-```
+`runphp.ini` must be located beside `runphp.exe`.
 
-Pass arguments to a PHP script:
+RunPHP accepts either the PHP executable:
 
-```
-runphp test --width 1920 --height 1080
-```
-
-Arguments following the script name are passed directly to PHP.
-
-## WORKING DIRECTORY
-
-Named scripts preserve the directory from which RunPHP was invoked.
-
-For example:
-
-```
-C:\Pictures> runphp resize
-```
-
-may execute:
-
-```
-C:\scripts\php_exec\resize.php
-```
-
-while the PHP working directory remains:
-
-```
-C:\Pictures
-```
-
-This allows globally stored PHP utilities to operate on the current directory.
-
-Explicit PHP file paths use the directory containing the PHP file as the working directory.
-
-For example:
-
-```
-runphp "D:\Tools\cleanup.php"
-```
-
-runs cleanup.php with:
-
-```
-D:\Tools
-```
-
-as its working directory.
-
-## WINDOWS EXPLORER
-
-.php files can be associated with runphp.exe using:
-
-```
-Right Click PHP File
--> Open With
--> Choose another app
--> Choose an app on your PC
--> Select runphp.exe
-```
-
-You can optionally tell Windows to always use runphp.exe for .php files.
-
-You can open .php files with your Editor from the context menu: **Right Click > Edit with VSCode** (if you enabled the Editor in your Context Menu), or just edit your project from an Editor (VSCode) by navigating to it in your project directory.
-
-Double-clicking a PHP file will then execute the file with its own directory as the working directory.
-
-## CONFIGURATION
-
-Example runphp.ini:
-
-```
+```ini id="pr4j29"
 [php]
-executable=C:\xampp\php\php.exe
+executable=C:\Tools\php83\php.exe
+```
 
+or the PHP installation directory:
+
+```ini id="qq8d0s"
+[php]
+executable=C:\Tools\php83
+```
+
+When a directory is specified, RunPHP automatically uses `php.exe` from that directory.
+
+You can optionally configure a directory containing scripts you want RunPHP to find globally:
+
+```ini id="6r18w9"
 [scripts]
-directory=C:\scripts\php_exec
+directory=C:\Tools\PHP-Scripts
+```
 
+Runner behavior can also be configured:
+
+```ini id="i4hw8n"
 [runner]
 pause_on_error=true
 pause_after_run=false
 ```
 
-Set `pause_after_run=true` if you want the terminal window to remain open after a script finishes.
+## Usage
 
-## COMPILING
-
-**RunPHP** is written in [D](https://dlang.org/) and can be compiled using [DMD](https://dlang.org/dmd-windows.html):
-
+```text id="l7pqoh"
+runphp <script> [arguments...]
 ```
-dmd -O -release -of="runphp.exe" runphp.d
+
+Run a script in the current directory:
+
+```cmd id="3qjqfu"
+runphp example
 ```
+
+The `.php` extension is optional:
+
+```cmd id="qdwjj8"
+runphp example.php
+```
+
+Arguments after the script name are passed directly to PHP:
+
+```cmd id="r49g65"
+runphp resize --width 800 --recursive
+```
+
+Run an exact path:
+
+```cmd id="ynw3wd"
+runphp "D:\Tools\example.php"
+```
+
+Use:
+
+```cmd id="yphj62"
+runphp --help
+```
+
+for the complete command-line options and script resolution rules.
+
+The `examples/` directory contains additional working examples.
+
+## Troubleshooting
+
+**`Configuration file not found`**
+
+Make sure `runphp.ini` is beside `runphp.exe`.
+
+**`PHP executable not found`**
+
+Check the `[php] executable` setting in `runphp.ini`. It must point to either your PHP executable or the directory containing `php.exe`.
+
+For example:
+
+```ini id="mpklm6"
+executable=C:\Tools\php83
+```
+
+or:
+
+```ini id="s38zzf"
+executable=C:\Tools\php83\php.exe
+```
+
+**`runphp` is not recognized as a command**
+
+Add the directory containing `runphp.exe` to your Windows `PATH`, or run `runphp.exe` using its full path.
 
 ## Development
 
-runphp was vibe-coded with [ChatGPT](https://chatgpt.com/) (**<u>NOT</u>** with the [OpenAI Codex Agent](https://openai.com/codex/)) and developed through iterative testing and debugging.
+Want to build or modify RunPHP?
 
-I built it because I wanted a simple way to run PHP scripts on Windows without creating a separate batch file for every script. The source is included and the project is intentionally small. Feel free to inspect it, modify it, fork it, or fix anything I've missed.
+See `BUILD.md` for the development environment, build process, and repository tests.
 
-## LICENSE
+## License
 
-```
-This is free and unencumbered software released into the public domain.
-
-Anyone is free to copy, modify, publish, use, compile, sell, or
-distribute this software, either in source code form or as a compiled
-binary, for any purpose, commercial or non-commercial, and by any
-means.
-
-In jurisdictions that recognize copyright laws, the author or authors
-of this software dedicate any and all copyright interest in the
-software to the public domain. We make this dedication for the benefit
-of the public at large and to the detriment of our heirs and
-successors. We intend this dedication to be an overt act of
-relinquishment in perpetuity of all present and future rights to this
-software under copyright law.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
-OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-OTHER DEALINGS IN THE SOFTWARE.
-
-For more information, please refer to <https://unlicense.org>
-```
+RunPHP is released under the Unlicense.

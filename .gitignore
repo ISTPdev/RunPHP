@@ -1,0 +1,6 @@
+*.obj
+
+/build/runphp.exe
+/build/runphp.ini
+
+/release/packages/
