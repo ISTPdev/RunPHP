@@ -40,8 +40,7 @@ import std.utf : toUTF8;
 // Configuration
 // -----------------------------------------------------------------------------
 
-struct ConfigFile
-{
+struct ConfigFile {
     string phpExecutable;
     string scriptsDirectory;
 
@@ -50,14 +49,12 @@ struct ConfigFile
 }
 
 
-ConfigFile load_config(string executableDirectory)
-{
+ConfigFile load_config(string executableDirectory) {
     ConfigFile config;
 
     string configPath = buildPath(executableDirectory, "runphp.ini");
 
-    if (!exists(configPath))
-    {
+    if (!exists(configPath)) {
         fail(
             "Configuration file not found:\n" ~
             configPath ~ "\n\n" ~
@@ -67,56 +64,57 @@ ConfigFile load_config(string executableDirectory)
 
     string currentSection;
 
-    foreach (rawLine; readText(configPath).splitLines())
-    {
+    foreach (rawLine; readText(configPath).splitLines()) {
         string line = rawLine.strip();
 
-        if (line.length == 0)
+        if (line.length == 0) {
             continue;
+        }
 
-        if (line.startsWith("#") || line.startsWith(";"))
+        if (line.startsWith("#") || line.startsWith(";")) {
             continue;
+        }
 
         if (
             line.length >= 2 &&
             line[0] == '[' &&
             line[$ - 1] == ']'
-        )
-        {
+        ) {
             currentSection = line[1 .. $ - 1].strip().toLower();
             continue;
         }
 
         ptrdiff_t equalsPosition = line.indexOf('=');
 
-        if (equalsPosition < 0)
+        if (equalsPosition < 0) {
             continue;
+        }
 
         string key = line[0 .. equalsPosition].strip().toLower();
         string value = line[equalsPosition + 1 .. $].strip();
 
-        if (currentSection == "php")
-        {
-            if (key == "executable")
+        if (currentSection == "php") {
+            if (key == "executable") {
                 config.phpExecutable = value;
+            }
         }
-        else if (currentSection == "scripts")
-        {
-            if (key == "directory")
+        else if (currentSection == "scripts") {
+            if (key == "directory") {
                 config.scriptsDirectory = value;
+            }
         }
-        else if (currentSection == "runner")
-        {
-            if (key == "pause_on_error")
+        else if (currentSection == "runner") {
+            if (key == "pause_on_error") {
                 config.pauseOnError = parse_bool(value);
+            }
 
-            if (key == "pause_after_run")
+            if (key == "pause_after_run") {
                 config.pauseAfterRun = parse_bool(value);
+            }
         }
     }
 
-    if (config.phpExecutable.length == 0)
-    {
+    if (config.phpExecutable.length == 0) {
         fail(
             "Missing configuration value:\n\n" ~
             "[php]\n" ~
@@ -126,8 +124,7 @@ ConfigFile load_config(string executableDirectory)
 
     config.phpExecutable = resolve_php_executable(config.phpExecutable);
 
-    if (config.scriptsDirectory.length != 0)
-    {
+    if (config.scriptsDirectory.length != 0) {
         config.scriptsDirectory =
             absolutePath(config.scriptsDirectory);
     }
@@ -136,21 +133,21 @@ ConfigFile load_config(string executableDirectory)
 }
 
 
-string resolve_php_executable(string configuredPath)
-{
+string resolve_php_executable(string configuredPath) {
     // An exact executable/file was configured.
-    if (exists(configuredPath) && isFile(configuredPath))
+    if (exists(configuredPath) && isFile(configuredPath)) {
         return absolutePath(configuredPath);
+    }
 
     // A PHP directory was configured.
     // Look for the normal php.exe inside it.
-    if (exists(configuredPath) && isDir(configuredPath))
-    {
+    if (exists(configuredPath) && isDir(configuredPath)) {
         string phpExecutable =
             buildPath(configuredPath, "php.exe");
 
-        if (exists(phpExecutable) && isFile(phpExecutable))
+        if (exists(phpExecutable) && isFile(phpExecutable)) {
             return absolutePath(phpExecutable);
+        }
 
         fail(
             "PHP executable not found:\n" ~
@@ -169,8 +166,7 @@ string resolve_php_executable(string configuredPath)
 }
 
 
-bool parse_bool(string value)
-{
+bool parse_bool(string value) {
     string normalized = value.strip().toLower();
 
     return
@@ -185,16 +181,14 @@ bool parse_bool(string value)
 // Command-line options
 // -----------------------------------------------------------------------------
 
-enum ResolutionMode
-{
+enum ResolutionMode {
     automatic,
     localOnly,
     scriptsOnly
 }
 
 
-struct Options
-{
+struct Options {
     ResolutionMode resolutionMode = ResolutionMode.automatic;
 
     bool pauseAfterRun = false;
@@ -206,19 +200,16 @@ struct Options
 }
 
 
-Options parse_arguments(string[] arguments)
-{
+Options parse_arguments(string[] arguments) {
     Options options;
 
     bool parsingRunnerArguments = true;
 
-    foreach (argument; arguments[1 .. $])
-    {
+    foreach (argument; arguments[1 .. $]) {
         if (
             parsingRunnerArguments &&
             argument == "--"
-        )
-        {
+        ) {
             parsingRunnerArguments = false;
             continue;
         }
@@ -226,10 +217,8 @@ Options parse_arguments(string[] arguments)
         if (
             parsingRunnerArguments &&
             options.script.length == 0
-        )
-        {
-            switch (argument)
-            {
+        ) {
+            switch (argument) {
                 case "--local":
                     options.resolutionMode =
                         ResolutionMode.localOnly;
@@ -259,16 +248,14 @@ Options parse_arguments(string[] arguments)
             }
         }
 
-        if (options.script.length == 0)
-        {
+        if (options.script.length == 0) {
             options.script = argument;
 
             // Once we've found the script, every remaining
             // argument belongs to the PHP script.
             parsingRunnerArguments = false;
         }
-        else
-        {
+        else {
             options.scriptArguments ~= argument;
         }
     }
@@ -281,8 +268,7 @@ Options parse_arguments(string[] arguments)
 // Script resolution
 // -----------------------------------------------------------------------------
 
-struct ResolvedScript
-{
+struct ResolvedScript {
     string path;
     string workingDirectory;
     string source;
@@ -293,14 +279,14 @@ ResolvedScript resolve_script(
     string requestedScript,
     ResolutionMode mode,
     string scriptsDirectory
-)
-{
+) {
     string invocationDirectory = getcwd();
     string scriptName = requestedScript;
 
     // Add .php when no extension was supplied.
-    if (extension(scriptName).length == 0)
+    if (extension(scriptName).length == 0) {
         scriptName ~= ".php";
+    }
 
 
     // -------------------------------------------------------------------------
@@ -315,12 +301,10 @@ ResolvedScript resolve_script(
     // If the argument contains path information, don't search elsewhere.
     // -------------------------------------------------------------------------
 
-    if (contains_path_information(scriptName))
-    {
+    if (contains_path_information(scriptName)) {
         string candidate = absolutePath(scriptName);
 
-        if (!valid_script(candidate))
-        {
+        if (!valid_script(candidate)) {
             fail(
                 "PHP script not found:\n" ~
                 candidate
@@ -342,13 +326,11 @@ ResolvedScript resolve_script(
     if (
         mode == ResolutionMode.automatic ||
         mode == ResolutionMode.localOnly
-    )
-    {
+    ) {
         string candidate =
             absolutePath(scriptName);
 
-        if (valid_script(candidate))
-        {
+        if (valid_script(candidate)) {
             return ResolvedScript(
                 candidate,
                 invocationDirectory,
@@ -365,12 +347,9 @@ ResolvedScript resolve_script(
     if (
         mode == ResolutionMode.automatic ||
         mode == ResolutionMode.scriptsOnly
-    )
-    {
-        if (scriptsDirectory.length == 0)
-        {
-            if (mode == ResolutionMode.scriptsOnly)
-            {
+    ) {
+        if (scriptsDirectory.length == 0) {
+            if (mode == ResolutionMode.scriptsOnly) {
                 fail(
                     "No global scripts directory is configured.\n\n" ~
                     "Add this to runphp.ini:\n\n" ~
@@ -379,8 +358,7 @@ ResolvedScript resolve_script(
                 );
             }
         }
-        else
-        {
+        else {
             string candidate =
                 absolutePath(
                     buildPath(
@@ -389,8 +367,7 @@ ResolvedScript resolve_script(
                     )
                 );
 
-            if (valid_script(candidate))
-            {
+            if (valid_script(candidate)) {
                 return ResolvedScript(
                     candidate,
                     dirName(candidate),
@@ -410,15 +387,13 @@ ResolvedScript resolve_script(
         requestedScript ~ "\n\n";
 
 
-    final switch (mode)
-    {
+    final switch (mode) {
         case ResolutionMode.automatic:
             message ~=
                 "Searched:\n" ~
                 "  " ~ absolutePath(scriptName);
 
-            if (scriptsDirectory.length != 0)
-            {
+            if (scriptsDirectory.length != 0) {
                 message ~=
                     "\n  " ~
                     buildPath(
@@ -454,39 +429,45 @@ ResolvedScript resolve_script(
 }
 
 
-bool valid_script(string path)
-{
+bool valid_script(string path) {
     return
         exists(path) &&
         isFile(path);
 }
 
 
-bool contains_path_information(string path)
-{
-    if (path.length >= 2 && path[1] == ':')
+bool contains_path_information(string path) {
+    if (path.length >= 2 && path[1] == ':') {
         return true;
+    }
 
-    if (path.startsWith("\\\\"))
+    if (path.startsWith("\\\\")) {
         return true;
+    }
 
-    if (path.startsWith("./"))
+    if (path.startsWith("./")) {
         return true;
+    }
 
-    if (path.startsWith(".\\"))
+    if (path.startsWith(".\\")) {
         return true;
+    }
 
-    if (path.startsWith("../"))
+    if (path.startsWith("../")) {
         return true;
+    }
 
-    if (path.startsWith("..\\"))
+    if (path.startsWith("..\\")) {
         return true;
+    }
 
-    if (path.indexOf('/') >= 0)
+    if (path.indexOf('/') >= 0) {
         return true;
+    }
 
-    if (path.indexOf('\\') >= 0)
+    if (path.indexOf('\\') >= 0) {
         return true;
+    }
 
     return false;
 }
@@ -500,18 +481,15 @@ int execute_php(
     ConfigFile config,
     ResolvedScript script,
     string[] scriptArguments
-)
-{
+) {
     string[] command;
 
     command ~= config.phpExecutable;
     command ~= script.path;
     command ~= scriptArguments;
 
-    try
-    {
-        if (script.source == "explicit path")
-        {
+    try {
+        if (script.source == "explicit path") {
             chdir(script.workingDirectory);
         }
         auto process = spawnProcess(
@@ -523,8 +501,7 @@ int execute_php(
 
         return wait(process);
     }
-    catch (Exception exception)
-    {
+    catch (Exception exception) {
         stderr.writeln(
             "ERROR: Failed to start PHP.\n\n",
             "PHP executable:\n",
@@ -548,8 +525,7 @@ int execute_php(
 // Utility
 // -----------------------------------------------------------------------------
 
-string get_executable_path()
-{
+string get_executable_path() {
     WCHAR[32768] buffer;
 
     DWORD length =
@@ -559,15 +535,13 @@ string get_executable_path()
             cast(DWORD) buffer.length
         );
 
-    if (length == 0)
-    {
+    if (length == 0) {
         fail(
             "Unable to determine the location of runphp.exe."
         );
     }
 
-    if (length >= buffer.length)
-    {
+    if (length >= buffer.length) {
         fail(
             "The path to runphp.exe is too long."
         );
@@ -580,8 +554,7 @@ string get_executable_path()
 }
 
 
-void pause()
-{
+void pause() {
     write("\nPress Enter to close...");
     stdout.flush();
 
@@ -589,8 +562,7 @@ void pause()
 }
 
 
-void fail(string message)
-{
+void fail(string message) {
     stderr.writeln(
         "\nrunphp error\n",
         "============\n",
@@ -601,8 +573,7 @@ void fail(string message)
 }
 
 
-void print_help()
-{
+void print_help() {
     writeln(
 `runphp - PHP script launcher
 
@@ -688,12 +659,10 @@ EXPLORER
 // Main
 // -----------------------------------------------------------------------------
 
-int main(string[] arguments)
-{
+int main(string[] arguments) {
     bool shouldPauseOnError = true;
 
-    try
-    {
+    try {
         string executablePath =
             get_executable_path();
 
@@ -710,15 +679,13 @@ int main(string[] arguments)
             parse_arguments(arguments);
 
 
-        if (options.showHelp)
-        {
+        if (options.showHelp) {
             print_help();
             return 0;
         }
 
 
-        if (options.script.length == 0)
-        {
+        if (options.script.length == 0) {
             stderr.writeln(
                 "ERROR: No PHP script was specified.\n\n",
                 "Example:\n",
@@ -727,8 +694,9 @@ int main(string[] arguments)
                 "    runphp --help"
             );
 
-            if (shouldPauseOnError)
+            if (shouldPauseOnError) {
                 pause();
+            }
 
             return 1;
         }
@@ -762,21 +730,22 @@ int main(string[] arguments)
             );
 
 
-        if (shouldPause)
+        if (shouldPause) {
             pause();
+        }
 
 
         return exitCode;
     }
-    catch (Exception exception)
-    {
+    catch (Exception exception) {
         // fail() already prints its detailed message.
         //
         // This catch mainly prevents D's normal exception dump
         // from being the user-facing error interface.
 
-        if (shouldPauseOnError)
+        if (shouldPauseOnError) {
             pause();
+        }
 
         return 1;
     }

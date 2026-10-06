@@ -23,10 +23,8 @@ New-Item -ItemType Directory -Force -Path $ReleaseDir | Out-Null
 # Development configuration
 # ------------------------------------------------------------
 
-if (-not (Test-Path $BuildConfig))
-{
-    if (-not (Test-Path $BuildConfigExample))
-    {
+if (-not (Test-Path $BuildConfig)) {
+    if (-not (Test-Path $BuildConfigExample)) {
         throw "Development configuration template not found: $BuildConfigExample"
     }
 
@@ -48,19 +46,16 @@ Remove-Item $BuildExe -Force -ErrorAction SilentlyContinue
 
 Push-Location (Join-Path $Root "src")
 
-try
-{
+try {
     dmd -O -release -of="$BuildExe" "$Source"
 
-    if ($LASTEXITCODE -ne 0)
-    {
+    if ($LASTEXITCODE -ne 0) {
         throw "DMD compilation failed."
     }
 
     Remove-Item "runphp.obj" -Force -ErrorAction SilentlyContinue
 }
-finally
-{
+finally {
     Pop-Location
 }
 
@@ -78,8 +73,7 @@ Write-Host ""
 
 & $BuildExe --help
 
-if ($LASTEXITCODE -ne 0)
-{
+if ($LASTEXITCODE -ne 0) {
     throw "RunPHP test failed."
 }
 

@@ -1,7 +1,6 @@
 <?php
 
-function runphpinfo()
-{
+function runphpinfo() {
     $iniFile = php_ini_loaded_file();
 
     echo "RunPHP Information" . PHP_EOL;
