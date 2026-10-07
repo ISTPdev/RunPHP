@@ -1,16 +1,8 @@
-## Demo
-
-![RunPHP — run a PHP file by double-clicking](assets/open_with.gif)
-
 # RunPHP
 
-RunPHP is a small Windows utility for running PHP scripts from the command line or Windows Explorer without repeatedly typing the full path to PHP or your scripts.
+Run PHP scripts directly from Windows Explorer without creating `.bat` wrappers.
 
-```cmd id="m9x8hm"
-runphp cleanup
-runphp resize --width 800
-runphp "D:\Tools\example.php"
-```
+![RunPHP — run a PHP file by double-clicking](assets/open_with.gif)
 
 ## Installation
 
